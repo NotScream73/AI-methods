@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+          name="viewport">
+    <meta content="ie=edge" http-equiv="X-UA-Compatible">
     <title>Data Table</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" rel="stylesheet">
     <style>
         table {
             border-collapse: collapse;
@@ -32,25 +32,29 @@
     <br>
     <h5>Описание:</h5>
     <div>
-        Набор данных будет охватывать все компании, получившие статус UNICORN в мире, включая топ-100 по основным оценкам. Большая часть мира, возможно, все еще верит, что Facebook и Google тоже являются стартапами, но они являются публичными компаниями, акции которых торгуются на фондовых биржах. Таким образом, этот набор данных содержит только стартапы (частные компании), которые еще не зарегистрированы на фондовой бирже.
+        Набор данных будет охватывать все компании, получившие статус UNICORN в мире, включая топ-100 по основным
+        оценкам. Большая часть мира, возможно, все еще верит, что Facebook и Google тоже являются стартапами, но они
+        являются публичными компаниями, акции которых торгуются на фондовых биржах. Таким образом, этот набор данных
+        содержит только стартапы (частные компании), которые еще не зарегистрированы на фондовой бирже.
     </div>
     <div>
-        Набор данных содержит названия компаний, а также информацию об их местонахождении, основателях, финансировании, сотрудниках и т. д.
+        Набор данных содержит названия компаний, а также информацию об их местонахождении, основателях, финансировании,
+        сотрудниках и т. д.
     </div>
     <br>
     <br>
-    <form method="POST" action="/">
+    <form action="/" method="POST">
         <div class="row">
             <div class="col">
                 <div class="form-group">
                     <label>Минимальный диапазон строк</label>
-                    <input type="number" name="minrow" class="form-control" placeholder="Минимальная строка">
+                    <input class="form-control" name="minrow" placeholder="Минимальная строка" type="number">
                 </div>
             </div>
             <div class="col">
                 <div class="form-group">
                     <label>Максимальный диапазон строк ({{ num_rows }})</label>
-                    <input type="text" name="maxrow" class="form-control" placeholder="Максимальная строка">
+                    <input class="form-control" name="maxrow" placeholder="Максимальная строка" type="text">
                 </div>
             </div>
         </div>
@@ -59,18 +63,18 @@
             <div class="col">
                 <div class="form-group">
                     <label>Минимальный диапазон столбцов</label>
-                    <input type="text" name="mincol" class="form-control" placeholder="Минимальный столбец">
+                    <input class="form-control" name="mincol" placeholder="Минимальный столбец" type="text">
                 </div>
             </div>
             <div class="col">
                 <div class="form-group">
                     <label>Максимальный диапазон столбцов ({{ num_columns }})</label>
-                    <input type="text" name="maxcol" class="form-control" placeholder="Максимальный столбец">
+                    <input class="form-control" name="maxcol" placeholder="Максимальный столбец" type="text">
                 </div>
             </div>
         </div>
         <br>
-        <button type="submit" class="btn btn-primary">Отправить</button>
+        <button class="btn btn-primary" type="submit">Отправить</button>
     </form>
     <br>
     <table>

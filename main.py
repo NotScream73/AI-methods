@@ -1,5 +1,5 @@
-from flask import Flask, render_template, request
 import pandas as pd
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
@@ -16,7 +16,7 @@ def index():
 
     # Подсчет количества строк
     num_rows = int(datawithnan.shape[0])
-    data = pd.read_csv('data.csv',delimiter=";", keep_default_na=False)
+    data = pd.read_csv('data.csv', delimiter=";", keep_default_na=False)
     minrow = request.form['minrow'] if request.form.__len__() > 0 else 0
     maxrow = request.form['maxrow'] if request.form.__len__() > 0 else num_rows
     mincol = request.form['mincol'] if request.form.__len__() > 0 else 0
@@ -29,7 +29,9 @@ def index():
     else:
         data = pd.read_csv('data.csv', delimiter=";", keep_default_na=False)
 
-    return render_template('index.html', data=data,datawithnan=datawithnan, num_columns = num_columns, num_rows= num_rows, empty_cells = empty_cells, fill_cells=fill_cells)
+    return render_template('index.html', data=data, datawithnan=datawithnan, num_columns=num_columns, num_rows=num_rows,
+                           empty_cells=empty_cells, fill_cells=fill_cells)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
