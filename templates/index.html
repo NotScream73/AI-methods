@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Data Table</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+<br>
+<div class="container">
+    <h1>100 самых ценных Unicorns</h1>
+    <br>
+    <h5>Описание:</h5>
+    <div>
+        Набор данных будет охватывать все компании, получившие статус UNICORN в мире, включая топ-100 по основным оценкам. Большая часть мира, возможно, все еще верит, что Facebook и Google тоже являются стартапами, но они являются публичными компаниями, акции которых торгуются на фондовых биржах. Таким образом, этот набор данных содержит только стартапы (частные компании), которые еще не зарегистрированы на фондовой бирже.
+    </div>
+    <div>
+        Набор данных содержит названия компаний, а также информацию об их местонахождении, основателях, финансировании, сотрудниках и т. д.
+    </div>
+    <br>
+    <br>
+    <form method="POST" action="/">
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label>Минимальный диапазон строк</label>
+                    <input type="number" name="minrow" class="form-control" placeholder="Минимальная строка">
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label>Максимальный диапазон строк ({{ num_rows }})</label>
+                    <input type="text" name="maxrow" class="form-control" placeholder="Максимальная строка">
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label>Минимальный диапазон столбцов</label>
+                    <input type="text" name="mincol" class="form-control" placeholder="Минимальный столбец">
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label>Максимальный диапазон столбцов ({{ num_columns }})</label>
+                    <input type="text" name="maxcol" class="form-control" placeholder="Максимальный столбец">
+                </div>
+            </div>
+        </div>
+        <br>
+        <button type="submit" class="btn btn-primary">Отправить</button>
+    </form>
+    <br>
+    <table>
+        <thead>
+        <tr>
+            {% for col in data.columns %}
+            <th>{{ col }} ({{ data[col].dtypes }})</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in data.values %}
+        <tr>
+            {% for cell in row %}
+            <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <br>
+    <table>
+        <thead>
+        <tr>
+            <th>Parametr</th>
+            {% for col in data.columns %}
+            <th>{{ col }}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Типы данных</td>
+            {% for cell in data.columns %}
+            <td>{{ data[cell].dtype }}</td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <td>Пустых ячеек</td>
+            {% for cell in empty_cells %}
+            <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <td>Заполненных ячеек</td>
+            {% for cell in fill_cells %}
+            <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+        </tbody>
+    </table>
+    <br>
+</div>
+</body>
+</html>
