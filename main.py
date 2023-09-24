@@ -6,32 +6,29 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    datawithnan = pd.read_csv('data.csv', delimiter=";")
-    # Подсчет пустых ячеек в каждом столбце
-    empty_cells = datawithnan.isnull().sum()
-    fill_cells = datawithnan.notnull().sum()
-
-    # Подсчет количества столбцов
-    num_columns = int(datawithnan.shape[1])
-
-    # Подсчет количества строк
-    num_rows = int(datawithnan.shape[0])
-    data = pd.read_csv('data.csv', delimiter=";", keep_default_na=False)
-    minrow = request.form['minrow'] if request.form.__len__() > 0 else 0
-    maxrow = request.form['maxrow'] if request.form.__len__() > 0 else num_rows
-    mincol = request.form['mincol'] if request.form.__len__() > 0 else 0
-    maxcol = request.form['maxcol'] if request.form.__len__() > 0 else num_columns
-    if request.method == 'POST':
-        data = data.iloc[int(minrow):int(maxrow), int(mincol):int(maxcol)]
-        empty_cells = datawithnan.iloc[int(minrow):int(maxrow), int(mincol):int(maxcol)].isnull().sum()
-        fill_cells = datawithnan.iloc[int(minrow):int(maxrow), int(mincol):int(maxcol)].notnull().sum()
-        print(empty_cells)
+    if request.method == 'GET':
+        df = pd.read_csv('data.csv', sep=';')
+        return render_template('index.html', data=df.fillna(''), datatable=df, num_columns=len(df.axes[1]),
+                               num_rows=len(df.axes[0]),
+                               empty_cells=df.isna().sum(), fill_cells=df.count())
     else:
-        data = pd.read_csv('data.csv', delimiter=";", keep_default_na=False)
-
-    return render_template('index.html', data=data, datawithnan=datawithnan, num_columns=num_columns, num_rows=num_rows,
-                           empty_cells=empty_cells, fill_cells=fill_cells)
-
+        data = request.form
+        df = pd.read_csv('data.csv', sep=';')
+        from_str = 0
+        to_str = 100
+        from_col = 0
+        to_col = 100
+        if len(data['minrow']) != 0:
+            from_str = int(data['minrow'])
+        if len(data['maxrow']) != 0:
+            to_str = int(data['maxrow'])
+        if len(data['mincol']) != 0:
+            from_col = int(data['mincol'])
+        if len(data['maxcol']) != 0:
+            to_col = int(data['maxcol'])
+        return render_template('index.html', data=(df.iloc[from_str:to_str, from_col:to_col]).fillna(''), datatable=df,
+                               num_columns=len(df.axes[1]), num_rows=len(df.axes[0]),
+                               empty_cells=df.isna().sum(), fill_cells=df.count())
 
 if __name__ == '__main__':
     app.run(debug=True)

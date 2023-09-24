@@ -47,7 +47,7 @@
         <div class="row">
             <div class="col">
                 <div class="form-group">
-                    <label>Минимальный диапазон строк</label>
+                    <label>Минимальный диапазон строк (0)</label>
                     <input class="form-control" name="minrow" placeholder="Минимальная строка" type="number">
                 </div>
             </div>
@@ -62,7 +62,7 @@
         <div class="row">
             <div class="col">
                 <div class="form-group">
-                    <label>Минимальный диапазон столбцов</label>
+                    <label>Минимальный диапазон столбцов (0)</label>
                     <input class="form-control" name="mincol" placeholder="Минимальный столбец" type="text">
                 </div>
             </div>
@@ -89,7 +89,11 @@
         {% for row in data.values %}
         <tr>
             {% for cell in row %}
-            <td>{{ cell }}</td>
+                {% if cell != 'nan' %}
+                    <td>{{ cell }}</td>
+                {% else %}
+                    <td></td>
+                {% endif %}
             {% endfor %}
         </tr>
         {% endfor %}
@@ -101,7 +105,7 @@
         <thead>
         <tr>
             <th>Parametr</th>
-            {% for col in data.columns %}
+            {% for col in datatable.columns %}
             <th>{{ col }}</th>
             {% endfor %}
         </tr>
@@ -109,8 +113,8 @@
         <tbody>
         <tr>
             <td>Типы данных</td>
-            {% for cell in data.columns %}
-            <td>{{ data[cell].dtype }}</td>
+            {% for cell in datatable.columns %}
+                <td>{{ datatable[cell].dtype }}</td>
             {% endfor %}
         </tr>
         <tr>
