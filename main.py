@@ -1,21 +1,27 @@
 import pandas as pd
 from flask import Flask, render_template, request
 import re
+import seaborn as sns
+from matplotlib import pyplot as plt
+from io import BytesIO
+import base64
 
 app = Flask(__name__)
+
 global returnbtn
 returnbtn = "<a href='/'>Назад</a"
+
+dataframe = pd.read_csv('data.csv', sep=';')
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
-        df = pd.read_csv('data.csv', sep=';')
-        return render_template('index.html', data=df.fillna(''), datatable=df, num_columns=len(df.axes[1]),
-                               num_rows=len(df.axes[0]),
-                               empty_cells=df.isna().sum(), fill_cells=df.count(),
+        return render_template('index.html', data=dataframe.fillna(''), datatable=dataframe, num_columns=len(dataframe.axes[1]),
+                               num_rows=len(dataframe.axes[0]),
+                               empty_cells=dataframe.isna().sum(), fill_cells=dataframe.count(),
                                task1 = task1, task2 = task2(), task3 = task3(), task4 = task4())
     else:
         data = request.form
-        df = pd.read_csv('data.csv', sep=';')
         from_str = 0
         to_str = 100
         from_col = 0
@@ -28,40 +34,197 @@ def index():
             from_col = int(data['mincol'])
         if len(data['maxcol']) != 0:
             to_col = int(data['maxcol'])
-        return render_template('index.html', data=(df.iloc[from_str:to_str, from_col:to_col]).fillna(''), datatable=df,
-                               num_columns=len(df.axes[1]), num_rows=len(df.axes[0]),
-                               empty_cells=df.isna().sum(), fill_cells=df.count())
+        return render_template('index.html', data=(dataframe.iloc[from_str:to_str, from_col:to_col]).fillna(''), datatable=dataframe,
+                               num_columns=len(dataframe.axes[1]), num_rows=len(dataframe.axes[0]),
+                               empty_cells=dataframe.isna().sum(), fill_cells=dataframe.count())
 
 @app.route('/task1')
 def task1():
-    df = pd.read_csv('data.csv', sep=';')
-    df['Valuation ($B) '] = df['Valuation ($B) '].apply(lambda x: re.sub('[^0-9\.]+', '', x))
-    df['Valuation ($B) '] = pd.to_numeric(df['Valuation ($B) '])
-    result = df.groupby('Country').agg({'Valuation ($B) ': ['min', 'max', 'mean']})
-    return result.to_html() + returnbtn
+    df = dataframe.copy()
+    validvalue(df)
+    updf = df.copy()
+    tenprocent(updf)
+    result = df.groupby(df['Country'])['Valuation ($B) '].agg(['min', 'max', 'mean'])
+    result['mean'] = round(result['mean'],2)
+    updresult = updf.groupby(updf['Country'])['Valuation ($B) '].agg(['min', 'max', 'mean'])
+    updresult['mean'] = round(updresult['mean'],2)
+    return render_template('tasks.html', data = result.to_html, updata = updresult.to_html, url="/task?task=1")
 @app.route('/task2')
 def task2():
-    df = pd.read_csv('data.csv', sep=';')
-    df['Founded Year'] = pd.to_datetime(df['Founded Year'], format='%Y')
-    df['Valuation ($B) '] = df['Valuation ($B) '].apply(lambda x: re.sub('[^0-9\.]+', '', x))
-    df['Valuation ($B) '] = pd.to_numeric(df['Valuation ($B) '])
+    df = dataframe.copy()
+    validvalue(df)
+    updf = df.copy()
+    tenprocent(updf)
     result = df.groupby(df['Founded Year'].dt.year)['Valuation ($B) '].agg(['min', 'max', 'mean'])
     result['mean'] = round(result['mean'],2)
-    return result.to_html() + returnbtn
+    updresult = updf.groupby(updf['Founded Year'].dt.year)['Valuation ($B) '].agg(['min', 'max', 'mean'])
+    updresult['mean'] = round(updresult['mean'],2)
+    return render_template('tasks.html', data=result.to_html, updata=updresult.to_html, url="/task?task=2")
 @app.route('/task3')
 def task3():
-    df = pd.read_csv('data.csv', sep=';')
-    df['Valuation ($B) '] = df['Valuation ($B) '].apply(lambda x: re.sub('[^0-9\.]+', '', x))
-    df['Valuation ($B) '] = pd.to_numeric(df['Valuation ($B) '])
-    result = df.groupby('Number of Employees').agg({'Valuation ($B) ': ['min', 'max', 'mean']})
-    return result.to_html() + returnbtn
+    df = dataframe.copy()
+    validvalue(df)
+    updf = df.copy()
+    tenprocent(updf)
+    result = df.groupby(df['Number of Employees'])['Valuation ($B) '].agg(['min', 'max', 'mean'])
+    result['mean'] = round(result['mean'], 2)
+    updresult = updf.groupby(updf['Number of Employees'])['Valuation ($B) '].agg(['min', 'max', 'mean'])
+    updresult['mean'] = round(updresult['mean'], 2)
+    return render_template('tasks.html', data=result.to_html, updata=updresult.to_html, url="/task?task=3")
 @app.route('/task4')
 def task4():
-    df = pd.read_csv('data.csv', sep=';')
+    df = dataframe.copy()
+    validvalue(df)
+    updf = df.copy()
+    tenprocent(updf)
+    result = df.groupby(df['City'])['Valuation ($B) '].agg(['min', 'max', 'mean'])
+    result['mean'] = round(result['mean'], 2)
+    updresult = updf.groupby(updf['City'])['Valuation ($B) '].agg(['min', 'max', 'mean'])
+    updresult['mean'] = round(updresult['mean'], 2)
+    return render_template('tasks.html', data=result.to_html, updata=updresult.to_html, url="/task?task=4")
+def validvalue(df):
     df['Valuation ($B) '] = df['Valuation ($B) '].apply(lambda x: re.sub('[^0-9\.]+', '', x))
     df['Valuation ($B) '] = pd.to_numeric(df['Valuation ($B) '])
-    result = df.groupby('City').agg({'Valuation ($B) ': ['min', 'max', 'mean']})
-    return result.to_html() + returnbtn
+    df['Total Funding'] = df['Total Funding'].str.replace('$', '').str.replace('M', '').str.replace(',', '')
+    df['Total Funding'] = pd.to_numeric(df['Total Funding'])
+    df['Founded Year'] = pd.to_datetime(df['Founded Year'], format='%Y')
+def tenprocent(updf):
+    # Рассчитываем 10% от общего количества строк в DataFrame
+    percent_to_fill = 0.1
+    num_rows_to_fill = int(len(dataframe) * percent_to_fill)
+
+    # Получаем усредненные значения для числовых столбцов
+    num_columns = ['Valuation ($B) ', 'Total Funding']
+    num_avg_values = updf[num_columns].mean()
+
+    # Получаем наиболее часто встречающиеся значения для текстовых столбцов
+    text_columns = ['Company', 'Country', 'Founded Year', 'State', 'Number of Employees', 'City', 'Industries',
+                    'Name of Founders']
+    text_most_common_values = updf[text_columns].mode().iloc[0]
+
+    # Дополняем 10% строк DataFrame усредненными значениями и наиболее часто встречающимися значениями
+
+    for i in range(1, num_rows_to_fill):
+        # Создаем новую строку для DataFrame
+        new_row = pd.Series()
+        for column in num_columns:
+            new_row[column] = num_avg_values[column]
+        for column in text_columns:
+            new_row[column] = text_most_common_values[column]
+        # Добавляем строку в DataFrame с использованием loc
+        updf.loc[len(updf)] = new_row
+@app.route('/task')
+def task5():
+    page = request.args.get('task', default=1, type=int)
+    df = dataframe.copy()
+    validvalue(df)
+    updf = df.copy()
+    tenprocent(updf)
+    if page == 1:
+        result = df[['Country', 'Valuation ($B) ']]
+        updf = df.copy()
+        tenprocent(updf)
+        result2 = updf[['Country', 'Valuation ($B) ']]
+        # Строим boxplot с использованием Seaborn
+        plt.figure(figsize=(15, 10))
+        sns.boxplot(x='Country', y='Valuation ($B) ', data=result)
+        plt.title('Valuation Boxplot by Country')
+        plt.xlabel('Country')
+        plt.ylabel('Valuation')
+        # Сохраняем график в байтовом потоке
+        img = BytesIO()
+        plt.savefig(img, format='png')
+        img.seek(0)
+        # Кодируем изображение в формат base64
+        img_base64 = base64.b64encode(img.getvalue()).decode()
+        plt.clf()
+        sns.boxplot(x='Country', y='Valuation ($B) ', data=result2)
+        img2 = BytesIO()
+        plt.savefig(img2, format='png')
+        img2.seek(0)
+        # Кодируем изображение в формат base64
+        upimg_base64 = base64.b64encode(img2.getvalue()).decode()
+        # Отправляем шаблон с изображением в HTML
+        return render_template('image.html', img_data=img_base64, img_updata=upimg_base64)
+    elif page == 2:
+        result = df[['Founded Year', 'Valuation ($B) ']]
+        updf = df.copy()
+        tenprocent(updf)
+        result2 = updf[['Founded Year', 'Valuation ($B) ']]
+        # Строим boxplot с использованием Seaborn
+        plt.figure(figsize=(15, 10))
+        sns.boxplot(x='Founded Year', y='Valuation ($B) ', data=result)
+        plt.title('Valuation Boxplot by Founded Year')
+        plt.xlabel('Founded Year')
+        plt.ylabel('Valuation')
+        # Сохраняем график в байтовом потоке
+        img = BytesIO()
+        plt.savefig(img, format='png')
+        img.seek(0)
+        # Кодируем изображение в формат base64
+        img_base64 = base64.b64encode(img.getvalue()).decode()
+        plt.clf()
+        sns.boxplot(x='Founded Year', y='Valuation ($B) ', data=result2)
+        img2 = BytesIO()
+        plt.savefig(img2, format='png')
+        img2.seek(0)
+        # Кодируем изображение в формат base64
+        upimg_base64 = base64.b64encode(img2.getvalue()).decode()
+        # Отправляем шаблон с изображением в HTML
+        return render_template('image.html', img_data=img_base64, img_updata=upimg_base64)
+    elif page == 3:
+        result = df[['Number of Employees', 'Valuation ($B) ']]
+        updf = df.copy()
+        tenprocent(updf)
+        result2 = updf[['Number of Employees', 'Valuation ($B) ']]
+        # Строим boxplot с использованием Seaborn
+        plt.figure(figsize=(15, 10))
+        sns.boxplot(x='Number of Employees', y='Valuation ($B) ', data=result)
+        plt.title('Valuation Boxplot by Number of Employees')
+        plt.xlabel('Number of Employees')
+        plt.ylabel('Valuation')
+        # Сохраняем график в байтовом потоке
+        img = BytesIO()
+        plt.savefig(img, format='png')
+        img.seek(0)
+        # Кодируем изображение в формат base64
+        img_base64 = base64.b64encode(img.getvalue()).decode()
+        plt.clf()
+        sns.boxplot(x='Number of Employees', y='Valuation ($B) ', data=result2)
+        img2 = BytesIO()
+        plt.savefig(img2, format='png')
+        img2.seek(0)
+        # Кодируем изображение в формат base64
+        upimg_base64 = base64.b64encode(img2.getvalue()).decode()
+        # Отправляем шаблон с изображением в HTML
+        return render_template('image.html', img_data=img_base64, img_updata=upimg_base64)
+    elif page == 4:
+        result = df[['City', 'Valuation ($B) ']]
+        updf = df.copy()
+        tenprocent(updf)
+        result2 = updf[['City', 'Valuation ($B) ']]
+        # Строим boxplot с использованием Seaborn
+        plt.figure(figsize=(40, 10))
+        sns.boxplot(x='City', y='Valuation ($B) ', data=result)
+        plt.title('Valuation Boxplot by City')
+        plt.xlabel('City')
+        plt.ylabel('Valuation')
+        # Сохраняем график в байтовом потоке
+        img = BytesIO()
+        plt.savefig(img, format='png')
+        img.seek(0)
+        # Кодируем изображение в формат base64
+        img_base64 = base64.b64encode(img.getvalue()).decode()
+        plt.clf()
+        sns.boxplot(x='City', y='Valuation ($B) ', data=result2)
+        img2 = BytesIO()
+        plt.savefig(img2, format='png')
+        img2.seek(0)
+        # Кодируем изображение в формат base64
+        upimg_base64 = base64.b64encode(img2.getvalue()).decode()
+        # Отправляем шаблон с изображением в HTML
+        return render_template('image.html', img_data=img_base64, img_updata=upimg_base64)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
