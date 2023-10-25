@@ -258,6 +258,11 @@ keywords_links = [
     ({"NASA", "est_diameter_min", "est_diameter_max", "relative_velocity", "miss_distance", "orbiting_body", "sentry_object", "absolute_magnitude", "hazardous"}, "https://www.kaggle.com/datasets/sameepvani/nasa-nearest-earth-objects"),
     ({"авто", "автомобиль", "car", "price", "стоимость", "производитель", "manufacturer"}, "https://www.kaggle.com/datasets/deepcontractor/car-price-prediction-challenge"),
     ({"Country", "Population", "Continent", "Capital", "Yearly Change", "Land Area", "Fertility","Density"}, "https://www.kaggle.com/datasets/muhammedtausif/world-population-by-countries"),
+    ({"Health", "Diabetes", "India"}, "https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database"),
+    ({"age","sex","bmi"}, "https://www.kaggle.com/datasets/mirichoi0218/insurance"),
+    ({"store", "store area", "items", "available", "daily customer", "sales"}, "https://www.kaggle.com/datasets/surajjha101/stores-area-and-sales-data"),
+    ({"Name" , "Networth", "Source"}, "https://www.kaggle.com/datasets/surajjha101/forbes-billionaires-data-preprocessed"),
+    ({"heart_disease" , "bmi", "stroke"}, "https://www.kaggle.com/datasets/fedesoriano/stroke-prediction-dataset"),
 ]
 
 hash_functions = ["sha256"]
