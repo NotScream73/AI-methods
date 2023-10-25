@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Поиск с использованием фильтра Блума</title>
+</head>
+<body>
+    <h1>Поиск с использованием фильтра Блума</h1>
+    <form action="/search" method="post">
+        <label for="search_query">Введите слово для поиска:</label>
+        <input type="text" id="search_query" name="search_query">
+        <button type="submit">Искать</button>
+    </form>
+    {% if result %}
+        {% for col in result %}
+            <div>
+                <a href="{{ col }}">{{ col }}</a>
+            </div>
+        {% endfor %}
+    {% endif %}
+</body>
+</html>

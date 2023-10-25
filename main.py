@@ -5,6 +5,8 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 from io import BytesIO
 import base64
+import hashlib
+from bitarray import bitarray
 
 app = Flask(__name__)
 
@@ -226,5 +228,60 @@ def task5():
         return render_template('image.html', img_data=img_base64, img_updata=upimg_base64)
 
 
+
+class BloomFilter:
+    def __init__(self, size, hash_functions):
+        self.size = size
+        self.bit_array = bitarray(size)
+        self.bit_array.setall(0)
+        self.hash_functions = hash_functions
+
+    def _hash(self, item, function):
+        return int(hashlib.sha256(item.encode()).hexdigest(), 16) % self.size
+
+    def add(self, item):
+        for hash_func in self.hash_functions:
+            index = self._hash(item, hash_func) % self.size
+            self.bit_array[index] = 1
+
+    def contains(self, item):
+        for hash_func in self.hash_functions:
+            index = self._hash(item, hash_func) % self.size
+            if not self.bit_array[index]:
+                return False
+        return True
+
+
+keywords_links = [
+    ({"Company", "Valuation", "Country", "State", "City", "Industries", "Founded Year", "Name of Founders", "Total Funding", "Number of Employees"}, "https://www.kaggle.com/datasets/ankanhore545/100-highest-valued-unicorns"),
+    ({"Insider Trading", "Relationship", "Date", "Transaction", "Cost", "Shares", "Value", "Shares Total", "SEC Form 4"}, "https://www.kaggle.com/datasets/ilyaryabov/tesla-insider-trading"),
+    ({"NASA", "est_diameter_min", "est_diameter_max", "relative_velocity", "miss_distance", "orbiting_body", "sentry_object", "absolute_magnitude", "hazardous"}, "https://www.kaggle.com/datasets/sameepvani/nasa-nearest-earth-objects"),
+    ({"авто", "автомобиль", "car", "price", "стоимость", "производитель", "manufacturer"}, "https://www.kaggle.com/datasets/deepcontractor/car-price-prediction-challenge"),
+    ({"Country", "Population", "Continent", "Capital", "Yearly Change", "Land Area", "Fertility","Density"}, "https://www.kaggle.com/datasets/muhammedtausif/world-population-by-countries"),
+]
+
+hash_functions = ["sha256"]
+
+filter_size = 1000
+bloom_filter = BloomFilter(filter_size, hash_functions)
+
+for keywords, link in keywords_links:
+    for keyword in keywords:
+        bloom_filter.add(keyword.lower())
+
+@app.route('/search')
+def searc():
+    return render_template('search.html')
+
+@app.route('/search', methods=['POST'])
+def search():
+    user_input = request.form['search_query'].lower().split(', ')
+    result_link = []
+    for keyword in user_input:
+        if bloom_filter.contains(keyword):
+            for keywords, link in keywords_links:
+                if keyword in list(map(str.lower, keywords)):
+                    result_link.append(link)
+    return render_template('search.html', result=set(result_link))
 if __name__ == '__main__':
     app.run(debug=True)
