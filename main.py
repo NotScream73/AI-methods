@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from flask import Flask, render_template, request
 import re
@@ -7,6 +8,7 @@ from io import BytesIO
 import base64
 import hashlib
 from bitarray import bitarray
+from sklearn.metrics import r2_score
 
 app = Flask(__name__)
 
@@ -288,5 +290,85 @@ def search():
                 if keyword in list(map(str.lower, keywords)):
                     result_link.append(link)
     return render_template('search.html', result=set(result_link))
+
+
+def create_linear_model(data):
+    # ИМТ
+    X = data.iloc[:, 10].values
+    # АД
+    Y = data.iloc[:, 8].values
+    n = data.shape[0]
+
+    # Разделение данных на обучающий и тестовый наборы
+    n_test = int(n * 0.05)
+    n_train = n - n_test
+    X_train, Y_train = X[:n_train], Y[:n_train]
+    X_test, Y_test = X[n_train:], Y[n_train:]
+
+    sumY_train = sum(Y_train)
+    sumX_train = sum(X_train)
+
+    sumXY_train = sum(X_train * Y_train)
+    sumXX_train = sum(X_train * X_train)
+
+    b1 = (sumXY_train - (sumY_train * sumX_train) / n_train) / (sumXX_train - sumX_train * sumX_train / n_train)
+    b0 = (sumY_train - b1 * sumX_train) / n_train
+
+    # Построение модели на обучающем наборе
+    plt.scatter(X_train, Y_train, alpha=0.8)
+    plt.axline(xy1=(0, b0), slope=b1, color='r', label=f'$y = {b1:.5f}x {b0:+.5f}$')
+
+    # Оценка производительности модели на тестовом наборе
+    Y_pred = b0 + b1 * X_test
+    first_half = sum((Y_pred - Y_test.mean()) ** 2)
+    second_half = sum((Y_test - Y_pred) ** 2) + first_half
+
+    r2 = r_squared(Y_test, Y_pred)
+    print(f"Кэф по странной формуле из вики: {first_half/second_half}")
+    print(f"Истинный кэф по вики: {r2}")
+    print(f"Кэф из библы: {r2_score(Y_test, Y_pred)}")
+
+    plt.scatter(X_test, Y_test, alpha=0.8, color='g')
+    plt.legend()
+    plt.show()
+    return r2
+def r_squared(y_true, y_pred):
+    # Вычисляем среднее значение целевой переменной
+    mean_y_true = np.mean(y_true)
+
+    # Вычисляем сумму квадратов отклонений от среднего
+    ss_total = np.sum((y_true - mean_y_true) ** 2)
+
+    # Вычисляем сумму квадратов остатков
+    ss_residual = np.sum((y_true - y_pred) ** 2)
+
+    # Вычисляем коэффициент детерминации
+    return 1 - (ss_residual / ss_total)
+
+# Чтение данных из файла
+data = pd.read_csv('data.csv', delimiter=';')
+
+# Убираем все лишние символы из первого столбца и оставляем только числа
+data['Total Funding'] = data['Total Funding'].replace('[\$,M]', '', regex=True).astype(float)
+
+# Функция для обработки столбца 'Number of Employees'
+def process_employees(value):
+    if '-' in value:
+        # Разделяем значение на два числа и убираем запятые
+        start, end = map(int, value.replace(',', '').split('-'))
+        # Вычисляем среднее значение из двух чисел
+        return (start + end) // 2
+    elif 'No Data' in value:
+        return None
+    else:
+        # Убираем десятичную точку и преобразуем в целое число
+        return int(value.replace('.', ''))
+
+# Применяем функцию к столбцу 'Number of Employees' и создаем новый столбец 'Employees'
+data['Employees'] = data['Number of Employees'].apply(process_employees)
+
+# Удаляем строки, где 'Number of Employees' был 'No Data'
+data = data.dropna(subset=['Employees'])
+create_linear_model(data)
 if __name__ == '__main__':
     app.run(debug=True)
