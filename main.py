@@ -315,8 +315,8 @@ def create_linear_model(data):
     b0 = (sumY_train - b1 * sumX_train) / n_train
 
     # Построение модели на обучающем наборе
-    plt.scatter(X_train, Y_train, alpha=0.8)
-    plt.axline(xy1=(0, b0), slope=b1, color='r', label=f'$y = {b1:.5f}x {b0:+.5f}$')
+    # plt.scatter(X_train, Y_train, alpha=0.8)
+    # plt.axline(xy1=(0, b0), slope=b1, color='r', label=f'$y = {b1:.5f}x {b0:+.5f}$')
 
     # Оценка производительности модели на тестовом наборе
     Y_pred = b0 + b1 * X_test
@@ -328,9 +328,9 @@ def create_linear_model(data):
     print(f"Истинный кэф по вики: {r2}")
     print(f"Кэф из библы: {r2_score(Y_test, Y_pred)}")
 
-    plt.scatter(X_test, Y_test, alpha=0.8, color='g')
-    plt.legend()
-    plt.show()
+    # plt.scatter(X_test, Y_test, alpha=0.8, color='g')
+    # plt.legend()
+    # plt.show()
     return r2
 def r_squared(y_true, y_pred):
     # Вычисляем среднее значение целевой переменной
