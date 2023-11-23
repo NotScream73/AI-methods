@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import pandas as pd
 from flask import Flask, render_template, request
@@ -292,58 +294,58 @@ def search():
     return render_template('search.html', result=set(result_link))
 
 
-def create_linear_model(data):
-    # ИМТ
-    X = data.iloc[:, 10].values
-    # АД
-    Y = data.iloc[:, 8].values
-    n = data.shape[0]
-
-    # Разделение данных на обучающий и тестовый наборы
-    n_test = int(n * 0.05)
-    n_train = n - n_test
-    X_train, Y_train = X[:n_train], Y[:n_train]
-    X_test, Y_test = X[n_train:], Y[n_train:]
-
-    sumY_train = sum(Y_train)
-    sumX_train = sum(X_train)
-
-    sumXY_train = sum(X_train * Y_train)
-    sumXX_train = sum(X_train * X_train)
-
-    b1 = (sumXY_train - (sumY_train * sumX_train) / n_train) / (sumXX_train - sumX_train * sumX_train / n_train)
-    b0 = (sumY_train - b1 * sumX_train) / n_train
-
-    # Построение модели на обучающем наборе
-    # plt.scatter(X_train, Y_train, alpha=0.8)
-    # plt.axline(xy1=(0, b0), slope=b1, color='r', label=f'$y = {b1:.5f}x {b0:+.5f}$')
-
-    # Оценка производительности модели на тестовом наборе
-    Y_pred = b0 + b1 * X_test
-    first_half = sum((Y_pred - Y_test.mean()) ** 2)
-    second_half = sum((Y_test - Y_pred) ** 2) + first_half
-
-    r2 = r_squared(Y_test, Y_pred)
-    print(f"Кэф по странной формуле из вики: {first_half/second_half}")
-    print(f"Истинный кэф по вики: {r2}")
-    print(f"Кэф из библы: {r2_score(Y_test, Y_pred)}")
-
-    # plt.scatter(X_test, Y_test, alpha=0.8, color='g')
-    # plt.legend()
-    # plt.show()
-    return r2
-def r_squared(y_true, y_pred):
-    # Вычисляем среднее значение целевой переменной
-    mean_y_true = np.mean(y_true)
-
-    # Вычисляем сумму квадратов отклонений от среднего
-    ss_total = np.sum((y_true - mean_y_true) ** 2)
-
-    # Вычисляем сумму квадратов остатков
-    ss_residual = np.sum((y_true - y_pred) ** 2)
-
-    # Вычисляем коэффициент детерминации
-    return 1 - (ss_residual / ss_total)
+# def create_linear_model(data):
+#     # ИМТ
+#     X = data.iloc[:, 10].values
+#     # АД
+#     Y = data.iloc[:, 8].values
+#     n = data.shape[0]
+#
+#     # Разделение данных на обучающий и тестовый наборы
+#     n_test = int(n * 0.05)
+#     n_train = n - n_test
+#     X_train, Y_train = X[:n_train], Y[:n_train]
+#     X_test, Y_test = X[n_train:], Y[n_train:]
+#
+#     sumY_train = sum(Y_train)
+#     sumX_train = sum(X_train)
+#
+#     sumXY_train = sum(X_train * Y_train)
+#     sumXX_train = sum(X_train * X_train)
+#
+#     b1 = (sumXY_train - (sumY_train * sumX_train) / n_train) / (sumXX_train - sumX_train * sumX_train / n_train)
+#     b0 = (sumY_train - b1 * sumX_train) / n_train
+#
+#     # Построение модели на обучающем наборе
+#     # plt.scatter(X_train, Y_train, alpha=0.8)
+#     # plt.axline(xy1=(0, b0), slope=b1, color='r', label=f'$y = {b1:.5f}x {b0:+.5f}$')
+#
+#     # Оценка производительности модели на тестовом наборе
+#     Y_pred = b0 + b1 * X_test
+#     first_half = sum((Y_pred - Y_test.mean()) ** 2)
+#     second_half = sum((Y_test - Y_pred) ** 2) + first_half
+#
+#     r2 = r_squared(Y_test, Y_pred)
+#     print(f"Кэф по странной формуле из вики: {first_half/second_half}")
+#     print(f"Истинный кэф по вики: {r2}")
+#     print(f"Кэф из библы: {r2_score(Y_test, Y_pred)}")
+#
+#     # plt.scatter(X_test, Y_test, alpha=0.8, color='g')
+#     # plt.legend()
+#     # plt.show()
+#     return r2
+# def r_squared(y_true, y_pred):
+#     # Вычисляем среднее значение целевой переменной
+#     mean_y_true = np.mean(y_true)
+#
+#     # Вычисляем сумму квадратов отклонений от среднего
+#     ss_total = np.sum((y_true - mean_y_true) ** 2)
+#
+#     # Вычисляем сумму квадратов остатков
+#     ss_residual = np.sum((y_true - y_pred) ** 2)
+#
+#     # Вычисляем коэффициент детерминации
+#     return 1 - (ss_residual / ss_total)
 
 # Чтение данных из файла
 data = pd.read_csv('data.csv', delimiter=';')
@@ -369,6 +371,187 @@ data['Employees'] = data['Number of Employees'].apply(process_employees)
 
 # Удаляем строки, где 'Number of Employees' был 'No Data'
 data = data.dropna(subset=['Employees'])
-create_linear_model(data)
+#create_linear_model(data)
+
+def create_linear_model(data, coefficient):
+    # ИМТ
+    X = data.iloc[:, 10].values
+    # АД
+    Y = data.iloc[:, 8].values
+    n = data.shape[0]
+
+    # Разделение данных на обучающий и тестовый наборы
+    n_test = int(n * coefficient)
+    n_train = n - n_test
+    X_train, Y_train = X[:n_train], Y[:n_train]
+    X_test, Y_test = X[n_train:], Y[n_train:]
+
+    sumY_train = sum(Y_train)
+    sumX_train = sum(X_train)
+
+    sumXY_train = sum(X_train * Y_train)
+    sumXX_train = sum(X_train * X_train)
+
+    b1 = (sumXY_train - (sumY_train * sumX_train) / n_train) / (sumXX_train - sumX_train * sumX_train / n_train)
+    b0 = (sumY_train - b1 * sumX_train) / n_train
+
+    # Построение модели на обучающем наборе
+    # plt.scatter(X_train, Y_train, alpha=0.8)
+    # plt.axline(xy1=(0, b0), slope=b1, color='r', label=f'$y = {b1:.5f}x {b0:+.5f}$')
+
+    # Оценка производительности модели на тестовом наборе
+    Y_pred = b0 + b1 * X_test
+    first_half = sum((Y_pred - Y_test.mean()) ** 2)
+    second_half = sum((Y_test - Y_pred) ** 2) + first_half
+
+    r2 = r_squared(Y_test, Y_pred)
+    print(f"Кэф по странной формуле из вики: {first_half / second_half}")
+    print(f"Истинный кэф по вики: {r2}")
+    print(f"Кэф из библы: {r2_score(Y_test, Y_pred)}")
+
+    # plt.scatter(X_test, Y_test, alpha=0.8, color='g')
+    # plt.legend()
+    # plt.show()
+    results = {
+        "first_half": first_half,
+        "second_half": second_half,
+        "r2_wiki_formula": first_half / second_half,
+        "r2_true_wiki": r2,
+        "r2_library": r2_score(Y_test, Y_pred)
+    }
+
+    return results
+def r_squared(y_true, y_pred):
+    # Вычисляем среднее значение целевой переменной
+    mean_y_true = np.mean(y_true)
+
+    # Вычисляем сумму квадратов отклонений от среднего
+    ss_total = np.sum((y_true - mean_y_true) ** 2)
+
+    # Вычисляем сумму квадратов остатков
+    ss_residual = np.sum((y_true - y_pred) ** 2)
+
+    # Вычисляем коэффициент детерминации
+    return 1 - (ss_residual / ss_total)
+
+@app.route('/linear', methods=['GET', 'POST'])
+def linear():
+    if request.method == 'POST':
+        # Get the coefficient value from the form
+        coefficient = float(request.form['coefficient'])
+    else:
+        # Default coefficient value
+        coefficient = 0.05
+
+    # Call the create_linear_model function with the chosen coefficient
+    results = create_linear_model(data, coefficient)
+
+    # Render the template with the results and current coefficient value
+    return render_template('linear.html', results=results, current_coefficient=coefficient)
+
+def calculate_shannon_entropy(data, target_column):
+    entropy = 0
+    total_count = len(data)
+
+    values = data[target_column].value_counts()
+
+    for value_count in values:
+        p = value_count / total_count
+        entropy -= p * math.log2(p)
+
+    return entropy
+
+def choose_best_attribute(data, target_column, attributes):
+    base_entropy = calculate_shannon_entropy(data, target_column)
+    information_gain = {}
+
+    for attribute in attributes:
+        unique_values = data[attribute].unique()
+        weighted_entropy = 0
+
+        for value in unique_values:
+            subset = data[data[attribute] == value]
+            p = len(subset) / len(data)
+            weighted_entropy += p * calculate_shannon_entropy(subset, target_column)
+
+        information_gain[attribute] = - base_entropy + weighted_entropy
+
+    best_attribute = max(information_gain, key=information_gain.get)
+
+    return best_attribute
+
+def build_decision_tree(data, target_column, attributes):
+    if len(data[target_column].unique()) == 1:
+        return data[target_column].iloc[0]
+
+    if len(attributes) == 0:
+        return data[target_column].mode().iloc[0]
+
+    best_attribute = choose_best_attribute(data, target_column, attributes)
+
+    tree = {best_attribute: {}}
+    remaining_attributes = [attr for attr in attributes if attr != best_attribute]
+
+    for value in data[best_attribute].unique():
+        subset = data[data[best_attribute] == value]
+        if len(subset) == 0:
+            tree[best_attribute][value] = data[target_column].mode().iloc[0]
+        else:
+            tree[best_attribute][value] = build_decision_tree(subset, target_column, remaining_attributes)
+
+    return tree
+def print_decision_tree(tree, indent=""):
+    if isinstance(tree, dict):
+        attribute = list(tree.keys())[0]
+        result = f"{indent}{attribute}:<br>"
+        for value, subtree in tree[attribute].items():
+            result += f"&nbsp;{indent}  {value}<br>"
+            result += print_decision_tree(subtree, indent + "&nbsp;&nbsp;&nbsp;&nbsp;")
+        return result
+    else:
+        return f"{indent}Class: {tree}<br>"
+
+# Признаки для разбиения
+attributes = ['Country', 'Number of Employees']
+
+# Целевая переменная
+target_column = 'Total Funding'
+
+def predict(tree, sample):
+    if isinstance(tree, dict):
+        attribute = list(tree.keys())[0]
+        value = sample.get(attribute)
+        subtree = tree[attribute].get(value, data[target_column].mode().iloc[0])
+        return predict(subtree, sample)
+    else:
+        return tree
+@app.route('/result')
+def tree():
+    return render_template('tree.html')
+
+@app.route('/result', methods=['POST'])
+def tree_result():
+    train_size = int(request.form['train_size'])
+    test_size = int(request.form['test_size'])
+
+    # Выборка данных для обучения
+    train_data = data.head(train_size)
+
+    # Выборка данных для проверки
+    test_data = data.tail(test_size)
+
+    # Построение дерева решений
+    decision_tree = build_decision_tree(train_data, target_column, attributes)
+
+    # Вывод дерева решений
+    result_tree = print_decision_tree(decision_tree)
+
+    # Прогнозирование и вывод результатов проверки
+    results = []
+    for index, row in test_data.iterrows():
+        prediction = predict(decision_tree, row)
+        results.append(f"Actual: {row[target_column]}, Predicted: {prediction}")
+
+    return render_template('tree.html', result_tree=result_tree, results=results)
 if __name__ == '__main__':
     app.run(debug=True)

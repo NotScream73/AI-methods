@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+          name="viewport">
+    <meta content="ie=edge" http-equiv="X-UA-Compatible">
+    <title>Дерево</title>
+    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" rel="stylesheet">
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+<br>
+<div class="container">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">Index</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/task1">Task 1</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/task2">Task 2</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/task3">Task 3</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/task4">Task 4</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/search">Фильтр Блума</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/result">Дерево решений</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <form method="post" action="/linear">
+        <label for="coefficient">Введите процент данных для теста (базовый = 0.05):</label>
+        <input type="text" name="coefficient" id="coefficient" value="{{ current_coefficient }}">
+        <button type="submit">Submit</button>
+    </form>
+
+    <p>Кэф по формуле: {{ results.first_half / results.second_half }}</p>
+    <p>Истинный кэф по вики: {{ results.r2_true_wiki }}</p>
+    <p>Кэф из библы: {{ results.r2_library }}</p>
+</div>
+</body>
+</html>
