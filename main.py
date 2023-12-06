@@ -12,6 +12,8 @@ import hashlib
 from bitarray import bitarray
 from sklearn.metrics import r2_score
 
+from Clasterization import clasterization
+
 app = Flask(__name__)
 
 global returnbtn
@@ -553,5 +555,32 @@ def tree_result():
         results.append(f"Actual: {row[target_column]}, Predicted: {prediction}")
 
     return render_template('tree.html', result_tree=result_tree, results=results)
+@app.route('/claster', methods=['GET'])
+def clastering():
+    # Строим boxplot с использованием Seaborn
+    plt.figure(figsize=(15, 10))
+
+    clast = clasterization(data.iloc[:, [8, 10]].to_numpy(), 2)
+    cluster_content = clast.clast()
+    k = len(cluster_content)
+    plt.grid()
+    plt.xlabel("Total Funding")
+    plt.ylabel("Employees")
+
+    for i in range(k):
+        x_coordinates = []
+        y_coordinates = []
+        for q in range(len(cluster_content[i])):
+            x_coordinates.append(cluster_content[i][q][0])
+            y_coordinates.append(cluster_content[i][q][1])
+        plt.scatter(x_coordinates, y_coordinates)
+    # Сохраняем график в байтовом потоке
+    img = BytesIO()
+    plt.savefig(img, format='png')
+    img.seek(0)
+    # Кодируем изображение в формат base64
+    img_base64 = base64.b64encode(img.getvalue()).decode()
+    return render_template('claster.html', img_data=img_base64)
+
 if __name__ == '__main__':
     app.run(debug=True)

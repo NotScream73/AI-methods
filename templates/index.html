@@ -28,37 +28,41 @@
 <body>
 <br>
 <div class="container">
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="/">Index</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbarNav">
-    <ul class="navbar-nav">
-        <li class="nav-item active">
-            <a class="nav-link" href="/task1">Task 1</a>
-        </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="/task2">Task 2</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/task3">Task 3</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/task4">Task 4</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/search">Фильтр Блума</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/linear">Линейная регрессия</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/result">Дерево решений</a>
-      </li>
-    </ul>
-  </div>
-</nav>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">Index</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/task1">Task 1</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/task2">Task 2</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/task3">Task 3</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/task4">Task 4</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/search">Фильтр Блума</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/linear">Линейная регрессия</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/result">Дерево решений</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/claster">Кластеризация</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
     <h1>100 самых ценных Unicorns</h1>
     <br>
     <h5>Описание:</h5>
@@ -120,11 +124,11 @@
         {% for row in data.values %}
         <tr>
             {% for cell in row %}
-                {% if cell != 'nan' %}
-                    <td>{{ cell }}</td>
-                {% else %}
-                    <td></td>
-                {% endif %}
+            {% if cell != 'nan' %}
+            <td>{{ cell }}</td>
+            {% else %}
+            <td></td>
+            {% endif %}
             {% endfor %}
         </tr>
         {% endfor %}
@@ -145,7 +149,7 @@
         <tr>
             <td>Типы данных</td>
             {% for cell in datatable.columns %}
-                <td>{{ datatable[cell].dtype }}</td>
+            <td>{{ datatable[cell].dtype }}</td>
             {% endfor %}
         </tr>
         <tr>
