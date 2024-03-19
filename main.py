@@ -1,3 +1,4 @@
-import FuzzyLogic as f
+import LinguisticScale as ls
 
-f.run()
+if __name__ == "__main__":
+    ls.run()
